@@ -38,7 +38,8 @@ class RecommendationService:
     def get_customer_recommendations(self, segment: Optional[str] = None, 
                                     limit: int = 50) -> List[schemas.RecommendationResponse]:
         """Get customer-specific recommendations"""
-        query = self.db.query(models.Customer).join(models.RFMScore)
+        # Use outerjoin so customers without RFM scores are still included
+        query = self.db.query(models.Customer).outerjoin(models.RFMScore)
         
         if segment:
             query = query.filter(models.RFMScore.segment == segment)
@@ -47,11 +48,9 @@ class RecommendationService:
         
         recommendations = []
         for customer in customers:
-            if not customer.rfm_score:
-                continue
-            
-            segment = customer.rfm_score.segment
-            strategy = self.rfm_model.get_segment_recommendations(segment)
+            # Use the customer's RFM segment if available, else fall back to a default
+            cust_segment = customer.rfm_score.segment if customer.rfm_score else "Need Attention"
+            strategy = self.rfm_model.get_segment_recommendations(cust_segment)
             
             churn_risk = "Unknown"
             if customer.churn_prediction:
@@ -64,7 +63,7 @@ class RecommendationService:
             recommendations.append(schemas.RecommendationResponse(
                 customer_id=customer.id,
                 customer_name=customer.name,
-                segment=segment,
+                segment=cust_segment,
                 churn_risk=churn_risk,
                 clv_segment=clv_segment,
                 recommended_actions=strategy['actions'],

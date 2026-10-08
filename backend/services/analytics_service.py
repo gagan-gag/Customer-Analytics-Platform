@@ -40,7 +40,8 @@ class AnalyticsService:
         transactions = self.db.query(models.Transaction).all()
         return pd.DataFrame([{
             'transaction_id': t.transaction_id,
-            'customer_id': self.db.query(models.Customer).get(t.customer_id).customer_id,
+            'customer_id': (self.db.get(models.Customer, t.customer_id).customer_id
+                            if self.db.get(models.Customer, t.customer_id) else None),
             'transaction_date': t.transaction_date,
             'amount': t.amount,
             'quantity': t.quantity,
@@ -136,7 +137,8 @@ class AnalyticsService:
         # Get RFM scores
         rfm_scores = self.db.query(models.RFMScore).all()
         rfm_df = pd.DataFrame([{
-            'customer_id': self.db.query(models.Customer).get(r.customer_id).customer_id,
+            'customer_id': (self.db.get(models.Customer, r.customer_id).customer_id
+                            if self.db.get(models.Customer, r.customer_id) else None),
             'recency': r.recency,
             'frequency': r.frequency,
             'monetary': r.monetary,
@@ -203,7 +205,7 @@ class AnalyticsService:
         
         prediction_list = []
         for p in predictions:
-            customer = self.db.query(models.Customer).get(p.customer_id)
+            customer = self.db.get(models.Customer, p.customer_id)
             prediction_list.append(schemas.ChurnPredictionResponse(
                 customer_id=p.customer_id,
                 customer_str_id=customer.customer_id if customer else str(p.customer_id),
@@ -253,7 +255,8 @@ class AnalyticsService:
         
         rfm_scores = self.db.query(models.RFMScore).all()
         rfm_df = pd.DataFrame([{
-            'customer_id': self.db.query(models.Customer).get(r.customer_id).customer_id,
+            'customer_id': (self.db.get(models.Customer, r.customer_id).customer_id
+                            if self.db.get(models.Customer, r.customer_id) else None),
             'recency': r.recency,
             'frequency': r.frequency,
             'monetary': r.monetary,
@@ -316,7 +319,7 @@ class AnalyticsService:
         
         prediction_list = []
         for p in predictions:
-            customer = self.db.query(models.Customer).get(p.customer_id)
+            customer = self.db.get(models.Customer, p.customer_id)
             prediction_list.append(schemas.CLVPredictionResponse(
                 customer_id=p.customer_id,
                 customer_str_id=customer.customer_id if customer else str(p.customer_id),
@@ -411,7 +414,8 @@ class AnalyticsService:
         if report_type == "rfm":
             rfm_scores = self.db.query(models.RFMScore).all()
             data = [{
-                'customer_id': self.db.query(models.Customer).get(r.customer_id).customer_id,
+                'customer_id': (self.db.get(models.Customer, r.customer_id).customer_id
+                                if self.db.get(models.Customer, r.customer_id) else None),
                 'segment': r.segment,
                 'recency': r.recency,
                 'frequency': r.frequency,
@@ -425,7 +429,8 @@ class AnalyticsService:
         elif report_type == "churn":
             predictions = self.db.query(models.ChurnPrediction).all()
             data = [{
-                'customer_id': self.db.query(models.Customer).get(p.customer_id).customer_id,
+                'customer_id': (self.db.get(models.Customer, p.customer_id).customer_id
+                                if self.db.get(models.Customer, p.customer_id) else None),
                 'churn_probability': p.churn_probability,
                 'churn_risk': p.churn_risk,
                 'is_churned': p.is_churned
@@ -437,7 +442,8 @@ class AnalyticsService:
         elif report_type == "clv":
             predictions = self.db.query(models.CLVPrediction).all()
             data = [{
-                'customer_id': self.db.query(models.Customer).get(p.customer_id).customer_id,
+                'customer_id': (self.db.get(models.Customer, p.customer_id).customer_id
+                                if self.db.get(models.Customer, p.customer_id) else None),
                 'predicted_clv': p.predicted_clv,
                 'clv_segment': p.clv_segment,
                 'historical_value': p.historical_value
