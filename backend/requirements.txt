@@ -1,0 +1,44 @@
+# Core Framework
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+
+# Database
+sqlalchemy
+alembic
+
+# Data Processing
+pandas
+numpy
+openpyxl
+xlrd
+
+# Machine Learning
+scikit-learn
+scipy
+joblib
+
+# API & Utilities
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+aiofiles
+
+# CORS
+# fastapi-cors (removed as it is deprecated and not used in app.py)
+
+# Export & Reporting
+reportlab
+matplotlib
+seaborn
+
+# Testing
+pytest
+pytest-asyncio
+httpx
+
+# Development
+black
+email-validator
